@@ -6,7 +6,7 @@ const path = require('path')
 app.listen(8080, function(){
   console.log('listening on 8080');
 });
-
+// hello
 app.use(express.static(path.join(__dirname, 'mycarstock_react/build')));
 
 app.get('/', (req, res) => {
