@@ -1,5 +1,3 @@
-// server.js
-
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -20,12 +18,9 @@ app.get('/', (req, res) => {
 // 애플(AAPL) 주식 가격을 보여주는 경로를 설정합니다.
 app.get('/appleStockPrice', async (req, res) => {
   try {
-    // 애플(AAPL) 주식의 현재 가격을 가져옵니다.
     const quote = await getStockQuote('AAPL');
-    // 가져온 가격을 응답합니다.
     res.send(`Apple Stock Price: $${quote.regularMarketPrice}`);
   } catch (error) {
-    // 오류가 발생하면 500 상태 코드와 오류 메시지를 응답합니다.
     res.status(500).send('Error fetching Apple stock price');
   }
 });
