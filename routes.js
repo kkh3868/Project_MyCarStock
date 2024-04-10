@@ -1,16 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { searchStock } = require('./stockService');
+const { getStockQuote } = require('./stockService');
 
-// GET /stock/:symbol 경로에 대한 요청을 처리합니다.
-router.get('/stock/:symbol', async (req, res) => {
+const getAppleStockPrice = async (req, res) => {
   try {
-    const symbol = req.params.symbol;
-    const stockData = await searchStock(symbol);
-    res.json(stockData);
+    const quote = await getStockQuote('AAPL');
+    if (!quote) {
+      throw new Error('AAPL에 대한 주식 시세를 찾을 수 없습니다.');
+    }
+    res.send(`애플 주식 가격: $${quote.regularMarketPrice}`);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('애플 주식 가격을 가져오는 중 오류 발생:', error);
+    res.status(500).send('애플 주식 가격을 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해주세요.');
   }
-});
+};
 
-module.exports = router;
+
+// 리액트로 라우팅을 할 때 모든 요청을 index.html로 리다이렉션하는 핸들러
+const reactRouter = (req, res) => {
+  res.sendFile(path.join(__dirname, 'mycarstock_react/build/index.html'));
+};
+
+module.exports = {
+  router,
+  getAppleStockPrice,
+  reactRouter
+};

@@ -1,5 +1,3 @@
-// stockService.js
-
 const yahooFinance = require('yahoo-finance2').default;
 
 // 특정 주식의 시세를 가져오는 함수를 정의합니다.
