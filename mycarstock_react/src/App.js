@@ -1,10 +1,12 @@
 import React from 'react';
 import './App.css';
+import stockDriveLogo from './stockDrive.gif';
 
 function App() {
   return (
     <div className="App">
       {/* Header */}
+      <img src={stockDriveLogo} alt="StockDrive Logo" className="logo" />
       <div className="blue-header">
         <h1>StockDrive</h1>
       </div>
