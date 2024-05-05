@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getStockQuote } = require('./stockService');
+const path = require('path');
+const { getStockQuote, getStockSymbol } = require('./stockService');
+const userDAO = require('./userDAO');
 
 const getAppleStockPrice = async (req, res) => {
   try {
@@ -15,14 +17,48 @@ const getAppleStockPrice = async (req, res) => {
   }
 };
 
-
-// 리액트로 라우팅을 할 때 모든 요청을 index.html로 리다이렉션하는 핸들러
-const reactRouter = (req, res) => {
+const homeRouter = (req, res) => {
   res.sendFile(path.join(__dirname, 'mycarstock_react/build/index.html'));
 };
+
+const mainRouter = (req, res) => {
+  res.sendFile(path.join(__dirname, 'mycarstock_mainpage_react/build/index.html'));
+};
+
+const handleLoginRequest = async (req, res) => {
+  const { loginId, loginPassword } = req.body;
+  try {
+    const user = await userDAO.findLoginInformationByLoginId(loginId);
+    if (user && user.login_password === loginPassword) {
+      res.json({success:true})
+      console.log('Login success');
+    } else {
+      res.json({success:false})
+      console.log('Login failed');
+    }
+  } catch (error) {
+    console.error('로그인 오류: ', error);
+    res.status(500).json({ success: false, message: '로그인 중 오류가 발생했습니다.' });
+  }
+};
+
+const handleStockSearch = async (req, res) => {
+  const {query} = req.body;
+  try {
+    const searchResults = await getStockSymbol(query);
+    console.log(searchResults.quotes)
+    res.json({success: true, results: searchResults.quotes});
+  } catch (error){
+    console.error('주식 검색 중 오류 발생 : ', error);
+    res.status(500).json({success: false, message: '주식 검색 중 오류가 발생했습니다.'})
+  }
+}
 
 module.exports = {
   router,
   getAppleStockPrice,
-  reactRouter
+  homeRouter,
+  mainRouter,
+  handleLoginRequest,
+  handleStockSearch,
 };
