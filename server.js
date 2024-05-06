@@ -20,6 +20,8 @@ app.post('/', routes.handleLoginRequest);
 
 app.get('/main', routes.mainRouter);
 app.post('/main', routes.handleStockSearch);
+app.put('/main/:stockInfo', routes.AddStock);
+app.delete('/main/:stockInfo', routes.DeleteStock);
 
 app.get('/appleStockPrice', routes.getAppleStockPrice);
 

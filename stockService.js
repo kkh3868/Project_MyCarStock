@@ -9,9 +9,9 @@ async function getStockQuote(symbol) {
   }
 }
 
-async function getStockSymbol(symbol){
+async function getStockSymbol(query){
   try{
-    const result = await yahooFinance.search(symbol);
+    const result = await yahooFinance.search(query);
     return result;
   } catch (error) {
     throw new Error('Error fetching stock symbol');

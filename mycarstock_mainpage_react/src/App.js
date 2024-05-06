@@ -7,6 +7,8 @@ function App() {
   const [totalStockValue, setTotalStockValue] = useState("0.00");
   const [stockSymbol, setStockSymbol] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+
 
   const handleInputChange = async (e) => {
     const query = e.target.value;
@@ -20,6 +22,10 @@ function App() {
     }
   };
 
+  const handleItemClick = (result) => {
+    setSelectedItem(result);
+    alert(`You selected: ${result.symbol} - ${result.longname}`);
+  }
   return (
     <div className="App">
     {/* Header*/}
@@ -37,8 +43,8 @@ function App() {
           <div className='search-results'>
             <ul>
               {searchResults && searchResults.length > 0 ? (
-                searchResults.map((result, index) => (
-                  <li key={index}>
+                searchResults.slice(0, 3).map((result, index) => ( // 최대 3개의 결과만 표시
+                  <li key={index} onClick={() => handleItemClick(result)}>
                     {result.symbol} - {result.longname}
                   </li>
                 ))

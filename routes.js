@@ -54,6 +54,15 @@ const handleStockSearch = async (req, res) => {
   }
 }
 
+const AddStock = async (req,res) => {
+
+}
+
+const DeleteStock = async (req,res) => {
+
+}
+
+
 module.exports = {
   router,
   getAppleStockPrice,
@@ -61,4 +70,6 @@ module.exports = {
   mainRouter,
   handleLoginRequest,
   handleStockSearch,
+  AddStock,
+  DeleteStock,
 };
