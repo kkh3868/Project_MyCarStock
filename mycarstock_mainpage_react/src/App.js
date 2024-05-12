@@ -1,6 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
+
+function Modal({ selectedItem, onClose, onAdd }) {
+  const [quantity, setQuantity] = useState(1);
+
+  const handleAdd = async () => {
+    await onAdd(quantity);
+    onClose();
+  };
+
+  return (
+    <div className="modal-sheet">
+      <div className="modal-content">
+        <h2>Add Item</h2>
+        <p>You selected: {selectedItem.symbol} - {selectedItem.longname}</p>
+        <label>Quantity: <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} /></label>
+        <div className="modal-buttons">
+          <button onClick={handleAdd}>Add</button>
+          <button onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function App() {
 
@@ -8,7 +32,16 @@ function App() {
   const [stockSymbol, setStockSymbol] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [memberId, setmemberId] = useState('');
 
+  useEffect(() => {
+    // localStorage에서 memberId 값 가져오기
+    const storedMemberId = localStorage.getItem('memberId');
+    if (storedMemberId) {
+      setmemberId(storedMemberId);
+    }
+  }, []); // 컴포넌트가 처음 렌더링될 때 한 번만 실행되도록 설정
 
   const handleInputChange = async (e) => {
     const query = e.target.value;
@@ -24,8 +57,18 @@ function App() {
 
   const handleItemClick = (result) => {
     setSelectedItem(result);
-    alert(`You selected: ${result.symbol} - ${result.longname}`);
-  }
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleAddToCart = async (quantity) => {
+    // 여기서 선택된 아이템과 수량을 사용하여 필요한 작업을 수행합니다.
+    const response = await axios.put('/main/:stockInfo', { memberId : memberId, symbol : selectedItem.symbol, quantity : quantity });
+  };
+
   return (
     <div className="App">
     {/* Header*/}
@@ -54,6 +97,9 @@ function App() {
             </ul>
           </div>
         </div>
+        {isModalOpen && (
+        <Modal selectedItem={selectedItem} onClose={handleCloseModal} onAdd={handleAddToCart} />
+        )}
         <div className='graph-container'>
 
         </div>

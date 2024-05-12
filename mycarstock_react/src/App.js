@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect } from 'react';
 import './App.css';
 import stockDriveLogo from './stockDrive.gif';
 import axios from 'axios';
@@ -6,11 +6,30 @@ function App() {
   const [loginId, setLoginId] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // isLoggedIn 상태 추가
+  const [memberId, setMemberId] = useState(''); // memberId 상태 추가
+
+  useEffect(() => {
+    const storedLoggedInStatus = localStorage.getItem('isLoggedIn');
+    const storedMemberId = localStorage.getItem('memberId');
+    
+    if (storedLoggedInStatus === 'true') {
+      setIsLoggedIn(true);
+    }
+
+    if (storedMemberId) {
+      setMemberId(storedMemberId);
+      window.location.href = '/main';
+    }
+  }, []);
 
   const handleLogin = () => {
     axios.post('/', {loginId, loginPassword})
       .then(response => {
         if (response.data.success){
+          const memberId = response.data.memberId;
+          localStorage.setItem('memberId', memberId);
+          localStorage.setItem('isLoggedIn', 'true'); // 로그인 성공 시 isLoggedIn을 true로 설정
           setMessage('로그인 성공!');
           window.location.href = '/main';
         } else {

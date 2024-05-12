@@ -5,14 +5,16 @@ async function getStockQuote(symbol) {
     const quote = await yahooFinance.quote(symbol);
     return quote;
   } catch (error) {
-    throw new Error('Error fetching stock quote');
+    throw new Error(`Error fetching stock quote : ${error}`);
   }
 }
 
 async function getStockSymbol(query){
   try{
-    const result = await yahooFinance.search(query);
-    return result;
+    if(query != null){
+      const result = await yahooFinance.search(query);
+      return result;
+    }
   } catch (error) {
     throw new Error('Error fetching stock symbol');
   }

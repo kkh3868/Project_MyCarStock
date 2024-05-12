@@ -6,7 +6,7 @@ const userDAO = require('./userDAO');
 
 const getAppleStockPrice = async (req, res) => {
   try {
-    const quote = await getStockQuote('AAPL');
+    const quote = await getStockQuote('TSLA');
     if (!quote) {
       throw new Error('AAPL에 대한 주식 시세를 찾을 수 없습니다.');
     }
@@ -30,7 +30,7 @@ const handleLoginRequest = async (req, res) => {
   try {
     const user = await userDAO.findLoginInformationByLoginId(loginId);
     if (user && user.login_password === loginPassword) {
-      res.json({success:true})
+      res.json({success:true, memberId : user.member_id});
       console.log('Login success');
     } else {
       res.json({success:false})
@@ -55,7 +55,19 @@ const handleStockSearch = async (req, res) => {
 }
 
 const AddStock = async (req,res) => {
-
+  const {memberId, symbol, quantity} = req.body;
+  try{
+    console.log(`memberId : ${memberId}`);
+    console.log(`symbol : ${symbol}`);
+    console.log(`quantity : ${quantity}`);
+    const quote = await getStockQuote(symbol);
+    console.log(quote.regularMarketPrice);
+    await userDAO.AddStockQuoteQuantityInformation(memberId, symbol, quantity);
+    res.json({success:true, message: '주식추가에 성공하였습니다!'});
+  } catch (error){
+    console.error('주식추가 작업 중 오류 발생,', error);
+    res.status(500).json({success: false, message: '주식추가 중 오류가 발생했습니다.'})
+  }
 }
 
 const DeleteStock = async (req,res) => {
