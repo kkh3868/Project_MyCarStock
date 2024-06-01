@@ -1,0 +1,100 @@
+/* ===========================
+   ====== Search Box ====== 
+   =========================== */
+
+   .search {
+    display: flex;
+    flex-direction: column; /* 검색 결과를 입력란 바로 아래에 배치하기 위해 column 방향으로 변경 */
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #4b505e;
+    border-radius: 5px;
+    padding: 5px;
+    max-width: 500px;
+    min-width: 200px;
+    margin: 0 auto;
+    position: relative; /* 부모 요소를 기준으로 검색 결과 위치를 조정하기 위해 relative로 변경 */
+}
+
+.search-form {
+    display: flex;
+    width: 100%;
+}
+
+.search input[type="text"] {
+    border: none;
+    padding: 10px;
+    flex: 1;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 2px solid #ccc;
+    border-right: none;
+    min-width: 0;
+}
+
+.search input[type="text"]:focus {
+    outline: none;
+}
+
+.search input[type="submit"] {
+    border: none;
+    background-color: #4b505e;
+    color: #fff;
+    padding: 10px 20px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    cursor: pointer;
+    border: 2px solid #ccc;
+    border-left: none;
+    min-width: 70px;
+}
+
+.search input[type="submit"]:hover {
+    border: 2px solid #ccc;
+    background-color: #000000;
+}
+
+.search-results {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+  
+.search-results ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+  
+.search-results li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+  
+.search-results li:hover {
+    background-color: #f0f0f0;
+}
+  
+.search-results li.divider {
+    height: 1px;
+    background-color: #ddd;
+    margin: 8px 0;
+}
+
+.search input:not(:placeholder-shown) ~ .search-results {
+    display: block;
+}
+
+@media only screen and (min-width: 150px) and (max-width: 780px) {
+    .search {
+        width: 95%;
+    }
+}

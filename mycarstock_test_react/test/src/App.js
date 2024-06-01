@@ -1,61 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import './App.css';
+import React, { useEffect, useRef } from 'react';
+import './App.css'; // 스타일을 위한 CSS 파일
 import './footer.css'; 
 import './table.css';
 import './searchbox.css';
-import './modal.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { faBlog, faN } from '@fortawesome/free-solid-svg-icons';
 
-
-function Modal({ selectedItem, onClose, onAdd, onClear }) {
-  const [quantity, setQuantity] = useState(1);
-
-  const handleAdd = async () => {
-    await onAdd(quantity);
-    onClose();
-    onClear();
-  };
-
-  return (
-    <div className="modal-sheet">
-      <div className="modal-content">
-        <h2>Add Item</h2>
-        <p>You selected: {selectedItem.symbol} - {selectedItem.longname}</p>
-        <label>Quantity: <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} /></label>
-        <div className="modal-buttons">
-          <button onClick={handleAdd}>Add</button>
-          <button onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const curveRef = useRef(null);
 
-  const [totalStockValue, setTotalStockValue] = useState("0.00");
-  const [stockSymbol, setStockSymbol] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [memberId, setMemberId] = useState('');
-
   useEffect(() => {
+    // Variables
     let lastKnownScrollPosition = 0;
     const defaultCurveValue = 350;
     const curveRate = 3;
     let ticking = false;
     let curveValue;
-
-    // localStorage에서 memberId 값 가져오기
-    const storedMemberId = localStorage.getItem('memberId');
-    if (storedMemberId) {
-      setMemberId(storedMemberId);
-    }
 
     // Handle the functionality
     function scrollEvent(scrollPos) {
@@ -90,47 +51,10 @@ function App() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []); // 컴포넌트가 처음 렌더링될 때 한 번만 실행되도록 설정
-
-  const handleInputChange = async (e) => {
-    const query = e.target.value;
-    setStockSymbol(query);
-  
-    try {
-      const response = await axios.post('/main', { query });
-      setSearchResults(response.data.results);
-    } catch (error) {
-      console.error('Error fetching search results : ', error);
-    }
-  };
-
-  const handleItemClick = (result) => {
-    setSelectedItem(result);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleClearResults = () => {
-    setSearchResults([]);
-  }
-  const handleAddToCart = async (quantity) => {
-    // 여기서 선택된 아이템과 수량을 사용하여 필요한 작업을 수행합니다.
-    const response = await axios.put('/main/:stockInfo', { memberId : memberId, symbol : selectedItem.symbol, quantity : quantity });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('memberId');
-    localStorage.setItem('isLoggedIn', 'false');
-    setMemberId('');
-    window.location.href = '/';
-  };
+  }, []);
 
   return (
     <div>
-
       <div className="svg-container">
         <svg viewBox="0 0 800 400" className="svg">
           <path
@@ -141,17 +65,18 @@ function App() {
           />
         </svg>
       </div>
+
       <header>
-          <h1>StockDrive</h1>
-          <h4>Check out the cars you can buy with your stock!!</h4>
-          <br/>
-          <button onClick={handleLogout} className="btn btn-white btn-animated">Log Out</button>
+        <h1>StockDrive</h1>
+        <h4>Check out the cars you can buy with your stock!!</h4>
+        <br />
+        <a href="#" className="btn btn-white btn-animated">Log Out</a>
       </header>
 
       <main>
-        <div className='main-container'>
-          <div className='image-container'>
-            <h1>- IG Grandeur -</h1>
+        <div className="main-container">
+          <div className="image-container">
+            <h1>- IG Granduer -</h1>
             <br></br>
             <h2>10,000$ ~ 20,000$</h2>
             <img
@@ -160,37 +85,19 @@ function App() {
               style={{ maxWidth: '100%', height: 'auto' }}
             />
           </div>
-
-          <div className='table-container'>
+          <div className="table-container">
             <h1>- Total Value of Current Stocks -</h1>
             <br></br>
             <h2>$ 20,000</h2>
-            <br/>
-            <div className='search'>
-              <form className='search-form'>
-                <input type='text' placeholder='Search for your stock...' value={stockSymbol} onChange={handleInputChange}/>
-                <input type='submit' value="Submit" />
-                <div className='search-results' style={{display: searchResults.length>0 && !isModalOpen ? 'block' : 'none' }}>
-                  <ul>
-                    {searchResults && searchResults.length > 0 ? (
-                      searchResults.slice(0,3).map((result, index) => (
-                        <li key={index} onClick={()=> handleItemClick(result)}>
-                          {result.symbol} - {result.longname}
-                        </li>
-                      ))
-                    ) : (
-                      <li>No results found</li>
-                    )}
-                  </ul>
-                </div>
-                {isModalOpen && (
-                  <Modal selectedItem={selectedItem} onClose={handleCloseModal} onAdd={handleAddToCart} onClear={handleClearResults}/>
-                )}
+            <br></br>
+            <div className="search">
+              <form className="search-form">
+                  <input type="text" placeholder="Search for your stock..." />
+                  <input type="submit" value="Submit" />
               </form>
             </div>
             <br></br>
-
-            <table className='rwd-table'>
+            <table className="rwd-table">
               <tbody>
                 <tr>
                   <th>Index</th>

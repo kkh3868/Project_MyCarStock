@@ -1,0 +1,63 @@
+/* ===========================
+   ====== Search Box ====== 
+   =========================== */
+
+   .search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #4b505e;
+    border-radius: 5px;
+    padding: 5px;
+    max-width: 500px;
+    min-width: 200px; /* 최소 너비 설정 */
+    margin: 0 auto;
+}
+
+.search-form {
+    display: flex;
+    width: 100%;
+}
+
+.search input[type="text"] {
+    border: none;
+    padding: 10px;
+    flex: 1;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 2px solid #ccc; /* 테두리 스타일 및 색상 지정 */
+    border-right: none;
+    min-width: 0; /* 입력란이 너무 작아지지 않도록 최소 너비 설정 */
+}
+
+.search input[type="text"]:focus {
+    outline: none;
+}
+
+.search input[type="submit"] {
+    border: none;
+    background-color: #4b505e;
+    color: #fff;
+    padding: 10px 20px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    cursor: pointer;
+    border: 2px solid #ccc; /* 테두리 스타일 및 색상 지정 */
+    border-left: none;
+    min-width: 70px; /* 버튼이 너무 작아지지 않도록 최소 너비 설정 */
+}
+
+.search input[type="submit"]:hover {
+    border: 2px solid #ccc; /* 테두리 스타일 및 색상 지정 */
+    background-color: #000000;
+}
+
+/* ===========================
+   ====== Media Query for Search Box ====== 
+   =========================== */
+
+@media only screen and (min-width: 150px) and (max-width: 780px) {
+    .search {
+        width: 95%;
+    }
+}
