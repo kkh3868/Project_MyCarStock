@@ -11,6 +11,14 @@
   border-collapse: collapse;
   padding: 20px; /* 변경된 값 */
 }
+
+.rwd-table tbody{
+  display:block;
+  max-height:438.5px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .rwd-table tr:first-child {
   border-top: none;
   background: #4b505e;

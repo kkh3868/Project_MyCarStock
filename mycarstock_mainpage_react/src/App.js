@@ -10,6 +10,7 @@ import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { faBlog, faN } from '@fortawesome/free-solid-svg-icons';
 
 
+
 function Modal({ selectedItem, onClose, onAdd, onClear }) {
   const [quantity, setQuantity] = useState(1);
 
@@ -37,12 +38,12 @@ function Modal({ selectedItem, onClose, onAdd, onClear }) {
 function App() {
   const curveRef = useRef(null);
 
-  const [totalStockValue, setTotalStockValue] = useState("0.00");
   const [stockSymbol, setStockSymbol] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [memberId, setMemberId] = useState('');
+  const [stockData, setStockData] = useState({symbols: [], quantities: [], totalValuePerStocks: [], totalValue: '0.00'});
 
   useEffect(() => {
     let lastKnownScrollPosition = 0;
@@ -50,13 +51,14 @@ function App() {
     const curveRate = 3;
     let ticking = false;
     let curveValue;
-
+  
     // localStorage에서 memberId 값 가져오기
     const storedMemberId = localStorage.getItem('memberId');
     if (storedMemberId) {
       setMemberId(storedMemberId);
+      fetchStockData(storedMemberId);
     }
-
+  
     // Handle the functionality
     function scrollEvent(scrollPos) {
       if (scrollPos >= 0 && scrollPos < defaultCurveValue) {
@@ -69,28 +71,34 @@ function App() {
         }
       }
     }
-
+  
     // Scroll Listener
     function handleScroll() {
       lastKnownScrollPosition = window.scrollY;
-
+  
       if (!ticking) {
         window.requestAnimationFrame(() => {
           scrollEvent(lastKnownScrollPosition);
           ticking = false;
         });
       }
-
+  
       ticking = true;
     }
-
+  
     window.addEventListener("scroll", handleScroll);
-
-    // Cleanup event listener on component unmount
+  
+    // Fetch stock data every 5 second
+    const intervalId = setInterval(() => {
+      fetchStockData(memberId);
+    }, 10000);
+  
+    // Cleanup event listener and interval on component unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      clearInterval(intervalId);
     };
-  }, []); // 컴포넌트가 처음 렌더링될 때 한 번만 실행되도록 설정
+  }, [memberId]); // memberId가 변경될 때마다 useEffect가 다시 실행됩니다.
 
   const handleInputChange = async (e) => {
     const query = e.target.value;
@@ -116,9 +124,20 @@ function App() {
   const handleClearResults = () => {
     setSearchResults([]);
   }
+  
   const handleAddToCart = async (quantity) => {
-    // 여기서 선택된 아이템과 수량을 사용하여 필요한 작업을 수행합니다.
-    const response = await axios.put('/main/:stockInfo', { memberId : memberId, symbol : selectedItem.symbol, quantity : quantity });
+    if (!selectedItem || !memberId) {
+      console.error('Selected item or member ID is missing.');
+      return;
+    }
+  
+    try {
+      const response = await axios.put('/main/:stockInfo', { memberId, symbol: selectedItem.symbol, quantity });
+      setStockData(response.data);
+  
+    } catch (error) {
+      console.error('Error adding to cart: ', error);
+    }
   };
 
   const handleLogout = () => {
@@ -128,6 +147,21 @@ function App() {
     window.location.href = '/';
   };
 
+  const fetchStockData = async (memberId) => {
+    try {
+      const response = await axios.get('/main/stocks', {
+        headers: {
+          'X-Member-Id': memberId
+        }
+      });
+      setStockData(response.data);
+      //window.alert(`Received data from server: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      console.error('Error fetching stock data: ', error);
+    }
+  };
+
+  const emptyRows = 4 - stockData.symbols.length > 0 ? 4 - stockData.symbols.length : 0;
   return (
     <div>
 
@@ -164,12 +198,12 @@ function App() {
           <div className='table-container'>
             <h1>- Total Value of Current Stocks -</h1>
             <br></br>
-            <h2>$ 20,000</h2>
+            <h2>$ {stockData.totalValue}</h2>
             <br/>
             <div className='search'>
               <form className='search-form'>
                 <input type='text' placeholder='Search for your stock...' value={stockSymbol} onChange={handleInputChange}/>
-                <input type='submit' value="Submit" />
+                <input type='submit' value="Submit" onClick={(e) => { e.preventDefault(); handleInputChange(); }} />
                 <div className='search-results' style={{display: searchResults.length>0 && !isModalOpen ? 'block' : 'none' }}>
                   <ul>
                     {searchResults && searchResults.length > 0 ? (
@@ -199,34 +233,24 @@ function App() {
                   <th>Total Stock Quote</th>
                   <th>Stock Quote</th>
                 </tr>
-                <tr>
-                  <td data-th="Index">1</td>
-                  <td data-th="Stock Name">AAPL</td>
-                  <td data-th="Quantity">25</td>
-                  <td data-th="Total Stock Quote">5000</td>
-                  <td data-th="Stock Quote">200</td>
-                </tr>
-                <tr>
-                  <td data-th="Index">2</td>
-                  <td data-th="Stock Name">NVDA</td>
-                  <td data-th="Quantity">5</td>
-                  <td data-th="Total Stock Quote">5000</td>
-                  <td data-th="Stock Quote">1000</td>
-                </tr>
-                <tr>
-                  <td data-th="Index">3</td>
-                  <td data-th="Stock Name">SOXL</td>
-                  <td data-th="Quantity">100</td>
-                  <td data-th="Total Stock Quote">5000</td>
-                  <td data-th="Stock Quote">50</td>
-                </tr>
-                <tr>
-                  <td data-th="Index">4</td>
-                  <td data-th="Stock Name">IBIT</td>
-                  <td data-th="Quantity">125</td>
-                  <td data-th="Total Stock Quote">5000</td>
-                  <td data-th="Stock Quote">40</td>
-                </tr>
+                {stockData.symbols.map((symbol, index) => (
+                  <tr key={index}>
+                    <td data-th="Index">{index + 1}</td>
+                    <td data-th="Stock Name">{symbol}</td>
+                    <td data-th="Quantity">{stockData.quantities[index]}</td>
+                    <td data-th="Total Stock Quote">{stockData.totalValuePerStocks[index]}</td>
+                    <td data-th="Stock Quote">{(stockData.totalValuePerStocks[index] / stockData.quantities[index]).toFixed(2)}</td>
+                  </tr>
+                ))}
+                {Array.from({ length: emptyRows }).map((_, index) => (
+                  <tr key={`empty-${index}`}>
+                    <td data-th="Index"></td>
+                    <td data-th="Stock Name"></td>
+                    <td data-th="Quantity"></td>
+                    <td data-th="Total Stock Quote"></td>
+                    <td data-th="Stock Quote"></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

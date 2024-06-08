@@ -4,7 +4,6 @@ const app = express();
 const path = require('path');
 const routes = require('./routes');
 
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
@@ -23,6 +22,7 @@ app.post('/main', routes.handleStockSearch);
 app.put('/main/:stockInfo', routes.AddStock);
 app.delete('/main/:stockInfo', routes.DeleteStock);
 
-app.get('/appleStockPrice', routes.getAppleStockPrice);
+app.get('/main/stocks', routes.GetMemberInfo);
+
 
 app.get('*', routes.homeRouter);

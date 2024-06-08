@@ -3,7 +3,8 @@ const yahooFinance = require('yahoo-finance2').default;
 async function getStockQuote(symbol) {
   try {
     const quote = await yahooFinance.quote(symbol);
-    return quote;
+    const currentPrice = quote?.regularMarketPrice;
+    return currentPrice;
   } catch (error) {
     throw new Error(`Error fetching stock quote : ${error}`);
   }
@@ -12,7 +13,7 @@ async function getStockQuote(symbol) {
 async function getStockSymbol(query){
   try{
     if(query != null){
-      const result = await yahooFinance.search(query);
+      const result = yahooFinance.search(query);
       return result;
     }
   } catch (error) {
