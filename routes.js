@@ -17,14 +17,10 @@ let conn;
   }
 })();
 
+// 로그인 페이지 라우트 구현
 const homeRouter = (req, res) => {
   res.sendFile(path.join(__dirname, 'mycarstock_react/build/index.html'));
 };
-
-const mainRouter = (req, res) => {
-  res.sendFile(path.join(__dirname, 'mycarstock_mainpage_react/build/index.html'));
-};
-
 const handleLoginRequest = async (req, res) => {
   const { loginId, loginPassword } = req.body;
   try {
@@ -41,7 +37,31 @@ const handleLoginRequest = async (req, res) => {
     res.status(500).json({ success: false, message: '로그인 중 오류가 발생했습니다.' });
   }
 };
-
+const createLoginID = async (req, res) => {
+  const {newId, newPassword, email} = req.body;
+  try{
+    const result = await userDAO.createLoginInformation(newId, newPassword, email, conn);
+    res.status(200).json({success: true, message: '아이디가 성공적으로 생성되었습니다.'});
+  } catch(error){
+    console.error('아이디 생성 오류: ', error);
+    res.status(500).json({ success: false, message: '아이디 생성 중 오류가 발생했습니다. '});
+  }
+};
+const findLoginID = async (req, res) =>{
+  const {email} = req.body;
+  try{
+    const result = await userDAO.findLoginIdByOriginalEmail(email, conn);
+    res.send({success: true, id: result.login_id});
+  } catch (err){
+    res.status(500).send({success:false, message: 'Database query error'});
+  } 
+}
+const changeLoginPassword = async (req, res) =>{
+}
+// 주식 및 자동차 관련 조회 Main 페이지 라우트 구현
+const mainRouter = (req, res) => {
+  res.sendFile(path.join(__dirname, 'mycarstock_mainpage_react/build/index.html'));
+};
 const handleStockSearch = async (req, res) => {
   const {query} = req.body;
   try {
@@ -53,7 +73,6 @@ const handleStockSearch = async (req, res) => {
     res.status(500).json({success: false, message: '주식 검색 중 오류가 발생했습니다.'})
   }
 }
-
 const AddStock = async (req, res) => {
   const { memberId, symbol, quantity } = req.body;
   try {
@@ -99,12 +118,9 @@ const AddStock = async (req, res) => {
     res.status(500).send('서버 오류');
   }
 };
-
-
 const DeleteStock = async (req,res) => {
 
 }
-
 const GetMemberInfo = async (req, res) => {
   const memberId = req.headers['x-member-id'];
   let totalValue = 0;
@@ -146,8 +162,11 @@ const GetMemberInfo = async (req, res) => {
 module.exports = {
   router,
   homeRouter,
-  mainRouter,
   handleLoginRequest,
+  createLoginID,
+  findLoginID,
+  changeLoginPassword,
+  mainRouter,
   handleStockSearch,
   AddStock,
   DeleteStock,

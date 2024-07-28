@@ -16,20 +16,26 @@ async function createConnection() {
         throw err;
     }
 }
-
-async function createLoginInformation(loginId, loginPassword, conn) {
+async function createLoginInformation(loginId, loginPassword, email, conn) {
     try {
-        const query = 'INSERT INTO login_information (login_id, login_password) VALUES (?, ?)';
-        const values = [loginId, loginPassword];
-        const [result] = await conn.execute(query, values);
-        console.log('Login information created successfully');
-        return result;
+      // 아이디 중복 체크 쿼리
+      const checkQuery = 'SELECT * FROM login_information WHERE login_id = ?';
+      const [rows] = await conn.execute(checkQuery, [loginId]);
+      if (rows.length > 0) {
+        throw new Error('Duplicate login ID');
+      }
+  
+      // 중복된 아이디가 없는 경우 아이디 생성 쿼리 실행
+      const insertQuery = 'INSERT INTO login_information (login_id, login_password, original_email) VALUES (?, ?, ?)';
+      const values = [loginId, loginPassword, email];
+      const [result] = await conn.execute(insertQuery, values);
+      console.log('Login information created successfully');
+      return result;
     } catch (err) {
-        console.error('Error creating login information: ', err);
-        throw err;
+      console.error('Error creating login information: ', err);
+      throw err;
     }
 }
-
 async function findLoginInformationByLoginId(loginId, conn) {
     try {
         const query = 'SELECT * FROM login_information WHERE login_id = ?';
@@ -41,7 +47,16 @@ async function findLoginInformationByLoginId(loginId, conn) {
         throw err;
     }
 }
-
+async function findLoginIdByOriginalEmail(email, conn){
+    try{
+        const query = 'SELECT * FROM login_information WHERE original_email = ?';
+        const [rows] = await conn.execute(query, [email]);
+        return rows[0];
+    } catch (err){
+        console.error('Error finding Login Id by Original Email: ', err)
+        throw err;
+    }
+}
 async function AddStockQuoteQuantityInformation(memberId, symbol, quantityToAdd, conn) {
     try {
         const findStockQuery = 'SELECT * FROM stock_ownership WHERE member_id = ? AND symbol = ?';
@@ -77,7 +92,6 @@ async function AddStockQuoteQuantityInformation(memberId, symbol, quantityToAdd,
         throw err;
     }
 }
-
 async function GetAllStocksInformation(memberId, conn) {
     try {
         const findSymbolQuantityQuery = 'SELECT symbol, quantity FROM stock_ownership WHERE member_id = ?';
@@ -96,6 +110,7 @@ module.exports = {
     createConnection,
     createLoginInformation,
     findLoginInformationByLoginId,
+    findLoginIdByOriginalEmail,
     AddStockQuoteQuantityInformation,
     GetAllStocksInformation,
 };

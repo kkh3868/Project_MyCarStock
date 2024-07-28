@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2/promise');
 
 class UserDTO {
     constructor(member_id, login_id, login_password){
